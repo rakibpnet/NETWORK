@@ -1,0 +1,13 @@
+Default Route IPv4 Port : 0.0.0.0/0 
+Default Route IPv6 Port : ::/0 
+
+Default Route IPv4/IPv6 Port Manually Configured
+
+RIP Route IPv4/IPv6 Port : based on UDP and uses port 520 for route updates
+
+EIGRP Route IPv4/IPv6 Port : uses 224.0. 0.10 as its multicast address and protocol number 88.
+
+OSPF runs over IPv4 and IPv6, but does not use a transport protocol such as UDP or TCP.
+
+BGP uses TCP port 179 to communicate with other routers.
+established by manual configuration between routing devices
