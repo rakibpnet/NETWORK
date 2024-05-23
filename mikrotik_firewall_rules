@@ -1,0 +1,49 @@
+/ip firewall filter
+add action=log chain=forward dst-address-list=FREE-FIRE log=yes
+add action=log chain=forward comment=Cloudflare dst-address-list=Cloudflare log=yes
+add action=log chain=forward disabled=yes dst-address-list=PUBG log=yes
+add action=log chain=forward disabled=yes dst-address-list=PUBG-TENCENT log=yes
+add action=log chain=forward disabled=yes protocol=tcp src-address=0.0.0.0/0
+
+/ip firewall mangle
+add action=log chain=prerouting connection-state=established protocol=tcp src-address=10.0.0.0/8 tcp-flags=fin
+add action=mark-packet chain=forward comment="Download fast" new-packet-mark=fast-pkt-up passthrough=no src-address-list=FAST
+add action=mark-packet chain=forward comment="Upload fast" dst-address-list=FAST new-packet-mark=fast-pkt-dw passthrough=no
+add action=mark-connection chain=prerouting comment=FREE-FIRE dst-address-list=FREE-FIRE new-connection-mark=FREE-FIRE passthrough=yes
+add action=mark-packet chain=prerouting connection-mark=FREE-FIRE new-packet-mark=FREE-FIRE-PKT passthrough=yes
+add action=mark-packet chain=forward new-packet-mark=freefire_up passthrough=no src-address-list=FREE-FIRE
+add action=mark-packet chain=forward dst-address-list=FREE-FIRE new-packet-mark=freefire_down passthrough=no
+add action=mark-connection chain=prerouting comment=CLOUDFLARE dst-address-list=Cloudflare new-connection-mark=CLOUDFLARE passthrough=yes
+add action=mark-packet chain=prerouting connection-mark=CLOUDFLARE new-packet-mark=CLOUDFLARE-PKT passthrough=yes
+add action=mark-packet chain=forward new-packet-mark=CLOUDFLARE-PKT passthrough=no src-address-list=Cloudflare
+add action=mark-packet chain=forward dst-address-list=Cloudflare new-packet-mark=CLOUDFLARE-PKT passthrough=no
+add action=mark-connection chain=prerouting comment=PUBG dst-address-list=PUBG new-connection-mark=PUBG passthrough=yes
+add action=mark-packet chain=prerouting connection-mark=PUBG new-packet-mark=PUBG-PKT passthrough=yes
+add action=mark-connection chain=prerouting comment=PUBG-TENCENT dst-address-list=PUBG-TENCENT new-connection-mark=PUBG-TENCENT passthrough=yes
+add action=mark-packet chain=prerouting connection-mark=PUBG-TENCENT new-packet-mark=PUBG-TENCENT-PKT passthrough=yes
+add action=mark-packet chain=forward comment=SPEEDTEST new-packet-mark=SPEEDTEST passthrough=yes src-address-list=SPEEDTEST
+add action=mark-packet chain=forward dst-address-list=SPEEDTEST new-packet-mark=SPEEDTEST passthrough=yes
+add action=mark-packet chain=prerouting comment=FB-VIDEO-CDN new-packet-mark=FB-VIDEO-CDN passthrough=yes src-address-list=FB-VIDEO-CDN
+add action=mark-packet chain=prerouting dst-address-list=FB-VIDEO-CDN new-packet-mark=FB-VIDEO-CDN passthrough=yes
+add action=mark-connection chain=prerouting dst-address-list=FB-VIDEO-CDN new-connection-mark=FB-VIDEO-CDN passthrough=yes
+add action=mark-connection chain=prerouting comment=ZOOM disabled=yes dst-address-list=ZOOM new-connection-mark=ZOOM passthrough=yes
+add action=mark-packet chain=prerouting connection-mark=ZOOM disabled=yes new-packet-mark=ZOOM-PKT passthrough=yes
+add action=mark-packet chain=forward disabled=yes new-packet-mark=zoom_up passthrough=no src-address-list=ZOOM
+add action=mark-packet chain=forward disabled=yes dst-address-list=ZOOM new-packet-mark=zoom_down passthrough=no
+add action=mark-packet chain=prerouting comment=IMO dst-address-list=imo new-packet-mark=imo-up passthrough=yes src-address=10.0.30.0/24
+add action=mark-packet chain=postrouting comment=IMO dst-address=10.0.30.0/24 new-packet-mark=imo-dw passthrough=yes src-address-list=imo
+
+/ip firewall raw
+add action=log chain=prerouting dst-address-list=Cloudflare log=yes
+
+/ip firewall nat
+add action=src-nat chain=srcnat disabled=yes out-interface=167-IIG-145 to-addresses=103.161.215.5
+add action=src-nat chain=srcnat disabled=yes out-interface=170-BDIX-50 to-addresses=103.161.215.5
+add action=src-nat chain=srcnat disabled=yes out-interface=169-FNA-350 to-addresses=103.161.215.5
+add action=src-nat chain=srcnat disabled=yes out-interface=168-GGC-300 to-addresses=103.161.215.5
+add action=src-nat chain=srcnat src-address-list=!p2p to-addresses=103.161.214.152/30
+add action=dst-nat chain=dstnat dst-address=202.150.221.170 dst-port=8080 protocol=tcp to-addresses=103.193.10.253
+add action=dst-nat chain=dstnat dst-address=103.161.215.5 dst-port=202 protocol=tcp to-addresses=172.20.20.2 to-ports=80
+add action=dst-nat chain=dstnat dst-address=103.161.215.5 dst-port=206 protocol=tcp to-addresses=172.20.20.6 to-ports=80
+/ip firewall raw
+add action=log chain=prerouting dst-address-list=Cloudflare log=yes
